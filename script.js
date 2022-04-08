@@ -5,6 +5,7 @@ ctx.canvas.width = innerWidth;
 ctx.canvas.height = innerHeight;
 
 let particleArray;
+let number = 1;
 
 // create constructor function
 
@@ -27,23 +28,19 @@ Particle.prototype.draw = function () {
   ctx.fill();
 
   if (!this.number) {
-    this.number = parseInt(Math.random() * 69 + 1);
+    this.number = number;
+    number++;
   }
 
   ctx.font = '30px Arial';
 
   const [r, g, b] = this.color.replace('rgb(', '').replace(')', '').split(',');
 
-  //   choosing number color based on lumosity of particle background color
+  //   choosing number color based on luminosity of particle background color
 
-  var luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  var luminosity = 0.2126 * r + 0.7152 * g + 0.0722 * b;
 
-  if (luma < 100) {
-    ctx.fillStyle = 'white';
-  } else {
-    ctx.fillStyle = 'black';
-  }
-
+  ctx.fillStyle = luminosity < 100 ? 'white' : 'black';
   ctx.fillText(`${this.number}`, this.x - 15, this.y + 15);
 };
 
@@ -52,9 +49,19 @@ Particle.prototype.draw = function () {
 Particle.prototype.update = function () {
   if (this.x + this.size > canvas.width || this.x - this.size < 0) {
     this.directionX = -this.directionX;
+    if (this.x + this.size > canvas.width) {
+      this.x = canvas.width - this.size;
+    } else {
+      this.x = this.size;
+    }
   }
   if (this.y + this.size > canvas.height || this.y - this.size < 0) {
     this.directionY = -this.directionY;
+    if (this.y + this.size > canvas.height) {
+      this.y = canvas.height - this.size;
+    } else {
+      this.y = this.size;
+    }
   }
 
   this.x += this.directionX;
@@ -66,6 +73,7 @@ Particle.prototype.update = function () {
 // create particle array
 
 function init() {
+  number = 1;
   particleArray = [];
   for (let i = 0; i < 68; i++) {
     let size = Math.random() * 20 + 30;
@@ -98,4 +106,7 @@ animate();
 window.onresize = () => {
   canvas.width = innerWidth;
   canvas.height = innerHeight;
+  for (let i = 0; i < particleArray.length; i++) {
+    particleArray[i].update();
+  }
 };
